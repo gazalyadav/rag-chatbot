@@ -1,0 +1,5 @@
+Artificial intelligence is transforming industries worldwide.
+Machine learning models can now process vast amounts of data.
+Natural language processing enables computers to understand human text.
+Vector databases store embeddings for fast similarity search.
+Retrieval-Augmented Generation combines search with language models.
