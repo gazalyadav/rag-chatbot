@@ -3,7 +3,7 @@ import faiss
 import pickle
 import numpy as np
 from pathlib import Path
-from langchain.schema import Document
+from langchain_core.documents import Document
 from typing import List, Tuple
 from src.config import VECTOR_DB_DIR, FAISS_INDEX_NAME, TOP_K_RESULTS
 from src.embeddings import embed_texts, embed_query

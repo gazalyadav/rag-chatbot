@@ -1,5 +1,5 @@
 # src/retriever.py
-from langchain.schema import Document
+from langchain_core.documents import Document
 from typing import List
 from src.vector_store import similarity_search
 from src.config import TOP_K_RESULTS

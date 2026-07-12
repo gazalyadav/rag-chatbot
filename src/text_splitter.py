@@ -5,8 +5,8 @@ Uses RecursiveCharacterTextSplitter to respect natural language boundaries.
 Metadata (source, page, filename) is preserved on every chunk.
 """
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.schema import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document
 from typing import List
 from src.config import CHUNK_SIZE, CHUNK_OVERLAP
 

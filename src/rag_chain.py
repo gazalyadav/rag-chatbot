@@ -6,7 +6,7 @@ This is the single entry point the Streamlit UI calls for every query.
 """
 
 from typing import Generator, List, Tuple
-from langchain.schema import Document
+from langchain_core.documents import Document
 
 from src.retriever      import retrieve_relevant_chunks
 from src.prompt_builder import build_rag_prompt, extract_sources_from_chunks

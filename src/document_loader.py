@@ -10,7 +10,7 @@ from docx import Document as DocxDocument   # python-docx — for DOCX parsing
 from pathlib import Path
 from typing import List
 try:
-    from langchain.schema import Document
+    from langchain_core.documents import Document
 except ImportError:
     from langchain_core.documents import Document
 from src.config import SUPPORTED_EXTENSIONS
