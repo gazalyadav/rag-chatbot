@@ -5,7 +5,7 @@ Extracts raw text + metadata (source, page, filetype) from each file.
 Metadata is attached at load time so citations work later in the RAG chain.
 """
 
-import fitz                          # PyMuPDF — for PDF parsing
+import pymupdf as fitz                        # PyMuPDF — for PDF parsing
 from docx import Document as DocxDocument   # python-docx — for DOCX parsing
 from pathlib import Path
 from typing import List
