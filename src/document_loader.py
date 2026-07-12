@@ -9,7 +9,10 @@ import pymupdf as fitz                        # PyMuPDF — for PDF parsing
 from docx import Document as DocxDocument   # python-docx — for DOCX parsing
 from pathlib import Path
 from typing import List
-from langchain.schema import Document       # LangChain's Document wrapper
+try:
+    from langchain.schema import Document
+except ImportError:
+    from langchain_core.documents import Document
 from src.config import SUPPORTED_EXTENSIONS
 
 
