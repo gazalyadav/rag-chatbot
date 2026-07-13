@@ -5,7 +5,7 @@ The prompt design is critical: it enforces grounding, citations,
 and honest fallback when the answer isn't in the retrieved context.
 """
 
-from langchain.schema import Document
+from langchain_core.documents import Document
 from typing import List
 
 
