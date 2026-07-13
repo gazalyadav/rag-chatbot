@@ -5,7 +5,7 @@ Model is loaded once and cached to avoid repeated 3-second startup costs.
 """
 
 from sentence_transformers import SentenceTransformer
-from langchain.schema import Document
+from langchain_core.documents import Document
 from typing import List
 from src.config import EMBEDDING_MODEL_NAME
 
