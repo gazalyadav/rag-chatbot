@@ -16,13 +16,13 @@ from src.config import (
 )
 from src.document_loader import load_documents
 from src.text_splitter   import split_documents
-from src.vector_store    import (
-    build_vector_store, vector_store_exists, delete_vector_store
+from src.vector_store import (
+    build_vector_store, add_to_vector_store,
+    vector_store_exists, delete_vector_store
 )
 from src.rag_chain       import run_rag_streaming
 from src.memory_manager  import ConversationMemory
 from src.llm_handler     import check_ollama_connection
-
 
 # ── Page Configuration ────────────────────────────────────────────────────────
 st.set_page_config(
@@ -67,17 +67,22 @@ with st.sidebar:
     # ── Ollama Status ──────────────────────────────────────────────────────────
     st.subheader("🔌 LLM Status")
 
-    if st.button("Check Ollama Connection", use_container_width=True):
+    from src.llm_handler import USE_GROQ, GROQ_MODEL
+    backend = f"Groq ({GROQ_MODEL})" if USE_GROQ else f"Ollama ({OLLAMA_MODEL})"
+
+    if st.button("Check Connection", use_container_width=True):
         with st.spinner("Checking..."):
             st.session_state.ollama_ok = check_ollama_connection()
 
     if st.session_state.ollama_ok:
-        st.success(f"✅ Connected — {OLLAMA_MODEL}")
+        st.success(f"✅ Connected — {backend}")
+
     else:
         st.warning("⚠️ Not connected — click above to check")
-        st.code("ollama serve", language="bash")
-
-    st.divider()
+        if USE_GROQ:
+            st.caption("Check your GROQ_API_KEY in secrets.")
+        else:
+            st.code("ollama serve", language="bash")
 
     # ── Document Upload ────────────────────────────────────────────────────────
     st.subheader("📁 Upload Documents")
@@ -90,55 +95,57 @@ with st.sidebar:
     )
 
     if uploaded_files:
-        if st.button(
-            f"⚡ Index {len(uploaded_files)} Document(s)",
-            use_container_width=True,
-            type="primary"
-        ):
-            with st.spinner("Processing documents..."):
-                try:
-                    # Save uploaded files to a temp directory
-                    temp_dir   = tempfile.mkdtemp()
-                    temp_paths = []
+        index_mode = st.radio(
+            "Indexing mode",
+            ["Add to existing index", "Replace entire index"],
+            help="Add keeps previous documents. Replace wipes and starts fresh."
+    )
 
-                    for uploaded_file in uploaded_files:
-                        temp_path = os.path.join(
-                            temp_dir, uploaded_file.name
-                        )
-                        with open(temp_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                        temp_paths.append(temp_path)
+    if st.button(
+        f"⚡ Index {len(uploaded_files)} Document(s)",
+        use_container_width=True,
+        type="primary"
+    ):
+        with st.spinner("Processing documents..."):
+            try:
+                temp_dir   = tempfile.mkdtemp()
+                temp_paths = []
 
-                    # Progress feedback
-                    progress = st.progress(0, text="Loading documents...")
+                for uploaded_file in uploaded_files:
+                    temp_path = os.path.join(temp_dir, uploaded_file.name)
+                    with open(temp_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                    temp_paths.append(temp_path)
 
-                    # Stage 1: Load
-                    docs = load_documents(temp_paths)
-                    progress.progress(33, text="Chunking text...")
+                progress = st.progress(0, text="Loading documents...")
+                docs     = load_documents(temp_paths)
+                progress.progress(33, text="Chunking text...")
+                chunks   = split_documents(docs)
+                progress.progress(66, text="Building vector index...")
 
-                    # Stage 2: Split
-                    chunks = split_documents(docs)
-                    progress.progress(66, text="Building vector index...")
-
-                    # Stage 3: Build vector store
+                if index_mode == "Replace entire index":
+                    delete_vector_store()
                     build_vector_store(chunks)
-                    progress.progress(100, text="Done!")
-
-                    # Update session state
-                    st.session_state.docs_indexed      = len(docs)
                     st.session_state.indexed_filenames = [
                         f.name for f in uploaded_files
                     ]
+                else:
+                    add_to_vector_store(chunks)
+                    st.session_state.indexed_filenames = list(set(
+                        st.session_state.indexed_filenames +
+                        [f.name for f in uploaded_files]
+                    ))
 
-                    st.success(
-                        f"✅ Indexed {len(docs)} document(s) "
-                        f"→ {len(chunks)} chunks"
-                    )
+                progress.progress(100, text="Done!")
+                st.session_state.docs_indexed = len(docs)
 
-                except Exception as e:
-                    st.error(f"❌ Indexing failed: {e}")
+                mode_label = "Replaced" if index_mode == "Replace entire index" else "Added"
+                st.success(
+                    f"✅ {mode_label} {len(docs)} doc(s) → {len(chunks)} chunks"
+                )
 
-    st.divider()
+            except Exception as e:
+                st.error(f"❌ Indexing failed: {e}")
 
     # ── Index Status ───────────────────────────────────────────────────────────
     st.subheader("📊 Index Status")
