@@ -116,5 +116,3 @@ Contributions are welcome! Feel free to fork this repository, create a new branc
 MIT License — Free to use and modify.
 
 ---
-
-**B.Tech Final Year Project — 2026**
