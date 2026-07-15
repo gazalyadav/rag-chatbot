@@ -69,6 +69,7 @@ python -m streamlit run app.py
 Open your browser at `http://localhost:8501`
 
 ## 📑 File Structure
+```
 rag_chatbot/
 ├── app.py                  # Streamlit UI entry point
 ├── requirements.txt        # Python dependencies
@@ -85,7 +86,8 @@ rag_chatbot/
 │   ├── memory_manager.py   # Conversation window memory
 │   └── rag_chain.py        # End-to-end RAG orchestrator
 └── tests/
-└── test_pipeline.py    # Smoke tests + pipeline validation
+    └── test_pipeline.py    # Smoke tests + pipeline validation
+```
 
 ## 🏆 How It Works — Step by Step
 
